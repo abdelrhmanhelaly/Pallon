@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>لعبة الكلمات والبلونات للأطفال</title>
+  <style>
+    :root {
+      --primary: #27ae60;
+      --accent: #e67e22;
+      --bg: #f0f4f8;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+
+    /* الإطار الرئيسي للعبة */
+    .game-card {
+      width: 100%;
+      max-width: 440px;
+      height: 94vh;
+      max-height: 720px;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+      border: 3px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ================= شاشة إدخال الاسم ================= */
+    .start-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 15px;
+      overflow-y: auto;
+    }
+
+    .start-title {
+      font-size: 22px;
+      color: #1e293b;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .start-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    /* حقل عرض الاسم المختار */
+    .name-display-box {
+      width: 90%;
+      height: 48px;
+      border: 2px dashed #27ae60;
+      border-radius: 14px;
+      background: #f0fdf4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #166534;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    /* أزرار التحكم بالاسم */
+    .name-controls {
+      display: flex;
+      gap: 10px;
+      width: 90%;
+      margin-bottom: 12px;
+    }
+
+    .btn-delete {
+      flex: 1;
+      padding: 8px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-start-game {
+      flex: 2;
+      padding: 8px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.25);
+    }
+
+    /* شبكة مربعات الحروف */
+    .letters-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      width: 95%;
+    }
+
+    .letter-btn {
+      aspect-ratio: 1;
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: all 0.1s;
+    }
+
+    .letter-btn:active {
+      transform: scale(0.92);
+      background: #e2e8f0;
+    }
+
+    /* ================= واجهة اللعب ================= */
+    .level-tabs {
+      display: flex;
+      width: 90%;
+      gap: 10px;
+      margin-top: 12px;
+      z-index: 20;
+    }
+
+    .level-tab {
+      flex: 1;
+      padding: 8px 0;
+      border: 2px solid #27ae60;
+      border-radius: 16px;
+      background: #ffffff;
+      color: #27ae60;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .level-tab.active {
+      background: #27ae60;
+      color: #ffffff;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90%;
+      margin: 10px 0 8px 0;
+      z-index: 20;
+    }
+
+    .badge {
+      background: #f1f5f9;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .skip-btn {
+      background: #f59e0b;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .skip-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* صندوق عرض الصورة الحقيقية */
+    .image-box {
+      width: 210px;
+      height: 155px;
+      background: #f8fafc;
+      border: 3px solid #cbd5e1;
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      z-index: 20;
+    }
+
+    .image-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* منطقة طيران البلونات */
+    .balloon-stage {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
+      border-top: 2px dashed #bae6fd;
+      z-index: 10;
+    }
+
+    /* تصميم البلونات والكتابة البيضاء الناصعة */
+    .balloon {
+      position: absolute;
+      bottom: -110px;
+      width: 90px;
+      height: 110px;
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff !important;
+      font-size: 21px;
+      font-weight: bold;
+      cursor: pointer;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      box-shadow: inset -6px -6px 10px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.15);
+      animation: flyUpward 5s infinite linear;
+      touch-action: manipulation;
+    }
+
+    .balloon::before {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 7px solid inherit;
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      width: 2px;
+      height: 15px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    @keyframes flyUpward {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-210px) rotate(4deg);
+      }
+      100% {
+        transform: translateY(-440px) rotate(-4deg);
+      }
+    }
+
+    /* اهتزاز المستطيل عند الخطأ */
+    .shake {
+      animation: shakeCard 0.4s ease-in-out;
+      border-color: #ef4444 !important;
+    }
+
+    @keyframes shakeCard {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    /* فرقعة الألوان */
+    .spark {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: popSpark 0.5s ease-out forwards;
+      z-index: 50;
+    }
+
+    @keyframes popSpark {
+      0% { transform: translate(0, 0) scale(1.2); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+    }
+
+    /* شاشة النهاية */
+    .game-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.96);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 110;
+      text-align: center;
+      padding: 25px;
+    }
+
+    .game-modal h2 {
+      color: #1e293b;
+      margin-bottom: 8px;
+      font-size: 22px;
+    }
+
+    .score-banner {
+      font-size: 19px;
+      color: #e67e22;
+      font-weight: bold;
+      margin: 12px 0 20px 0;
+      background: #fef3c7;
+      padding: 10px 20px;
+      border-radius: 16px;
+      border: 2px dashed #f59e0b;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 85%;
+    }
+
+    .action-btn {
+      padding: 11px 16px;
+      border: none;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-next { background: #2563eb; color: white; }
+    .btn-retry { background: #27ae60; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="game-card" id="game-card">
+
+    <!-- شاشة اختيار وكتابة الاسم -->
+    <div class="start-screen" id="start-screen">
+      <div class="start-title">مرحباً بك يا بطل! 🌟</div>
+      <div class="start-subtitle">اختر حروف اسمك من المربعات أدناه:</div>
+      
+      <div class="name-display-box" id="player-name-display">اضغط على الحروف...</div>
+
+      <div class="name-controls">
+        <button class="btn-delete" onclick="deleteLastLetter()">مسح ⌫</button>
+        <button class="btn-start-game" onclick="confirmNameAndStart()">ابدأ اللعب 🚀</button>
+      </div>
+
+      <!-- شبكة الحروف العربية -->
+      <div class="letters-grid" id="letters-grid"></div>
+    </div>
+
+    <!-- أزرار المستوى -->
+    <div class="level-tabs">
+      <button class="level-tab active" id="tab-lvl1" onclick="switchLevel(1)">المستوى 1 (حيوانات)</button>
+      <button class="level-tab" id="tab-lvl2" onclick="switchLevel(2)">المستوى 2 (جمادات)</button>
+    </div>
+
+    <!-- شريط معلومات اللعب -->
+    <div class="status-row">
+      <div class="badge" id="lives-txt">❤️ 3</div>
+      <div class="badge" id="player-badge">👤 بطل</div>
+      <div class="badge" id="score-txt">⭐ 0</div>
+      <button class="skip-btn" id="skip-btn" onclick="skipItem()">تخطي (3)</button>
+    </div>
+
+    <!-- صورة الاختبار الحقيقية -->
+    <div class="image-box">
+      <img id="item-image" src="" alt="صورة العنصر" referrerpolicy="no-referrer" />
+    </div>
+
+    <!-- مساحة البلونات -->
+    <div class="balloon-stage" id="balloon-stage"></div>
+
+    <!-- نافذة النهاية المخصصة للطفل باسمه -->
+    <div class="game-modal" id="game-modal">
+      <h2 id="modal-title">أحسنت!</h2>
+      <div class="score-banner" id="modal-score">مجموع نقاطك: 0</div>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // الحروف الأبجدية لشاشة البداية
+    const arabicLetters = [
+      'أ', 'ب', 'ت', 'ث', 'ج', 'ح',
+      'خ', 'د', 'ذ', 'ر', 'ز', 'س',
+      'ش', 'ص', 'ض', 'ط', 'ظ', 'ع',
+      'غ', 'ف', 'ق', 'ك', 'ل', 'م',
+      'ن', 'هـ', 'و', 'ي', 'ة', ' '
+    ];
+
+    let playerName = '';
+
+    // إنشاء أزرار الحروف
+    const lettersGrid = document.getElementById('letters-grid');
+    arabicLetters.forEach(char => {
+      const btn = document.createElement('button');
+      btn.className = 'letter-btn';
+      btn.innerText = char === ' ' ? 'مسافة' : char;
+      if (char === ' ') btn.style.fontSize = '12px';
+      btn.onclick = () => addLetter(char);
+      lettersGrid.appendChild(btn);
+    });
+
+    function addLetter(char) {
+      if (playerName.length < 15) {
+        playerName += char;
+        updateNameDisplay();
+      }
+    }
+
+    function deleteLastLetter() {
+      playerName = playerName.slice(0, -1);
+      updateNameDisplay();
+    }
+
+    function updateNameDisplay() {
+      const display = document.getElementById('player-name-display');
+      display.innerText = playerName || 'اضغط على الحروف...';
+    }
+
+    function confirmNameAndStart() {
+      playerName = playerName.trim();
+      if (!playerName) playerName = 'البطل';
+      document.getElementById('player-badge').innerText = `👤 ${playerName}`;
+      document.getElementById('start-screen').style.display = 'none';
+      resetGame();
+    }
+
+    // روابط صور حقيقية عالية الجودة وموثوقة ولا تنقطع
+    const levelsData = {
+      1: [
+        { word: 'أسد', img: 'https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'نمر', img: 'https://images.pexels.com/photos/145939/pexels-photo-145939.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'غزال', img: 'https://images.pexels.com/photos/34231/antler-antler-carrier-fallow-deer-hirsch.jpg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'قرد', img: 'https://images.pexels.com/photos/1207875/pexels-photo-1207875.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'دب', img: 'https://images.pexels.com/photos/35435/bear-fauna-polar-bear-danger.jpg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'حصان', img: 'https://images.pexels.com/photos/1996333/pexels-photo-1996333.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'فيل', img: 'https://images.pexels.com/photos/66898/elephant-cub-tsavo-kenya-66898.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'زرافة', img: 'https://images.pexels.com/photos/802112/pexels-photo-802112.jpeg?auto=compress&cs=tinysrgb&w=500' }
+      ],
+      2: [
+        { word: 'شنطة', img: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'كتاب', img: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'كرسي', img: 'https://images.pexels.com/photos/116910/pexels-photo-116910.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'لمبة', img: 'https://images.pexels.com/photos/577514/pexels-photo-577514.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'قلم', img: 'https://images.pexels.com/photos/733857/pexels-photo-733857.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'هاتف', img: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'شاشة', img: 'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=500' },
+        { word: 'ساعة', img: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=500' }
+      ]
+    };
+
+    const balloonColors = ['#e11d48', '#2563eb', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+
+    let currentLevel = 1;
+    let currentIndex = 0;
+    let lives = 3;
+    let skips = 3;
+    let score = 0;
+    let questionPool = [];
+
+    // مؤثرات صوتية
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq, type, duration) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function soundSuccess() {
+      playBeep(523.25, 'sine', 0.1);
+      setTimeout(() => playBeep(659.25, 'sine', 0.1), 90);
+      setTimeout(() => playBeep(783.99, 'sine', 0.18), 180);
+    }
+
+    function soundFail() {
+      playBeep(160, 'sawtooth', 0.25);
+    }
+
+    function createBurst(x, y, color) {
+      const stage = document.getElementById('balloon-stage');
+      const stageRect = stage.getBoundingClientRect();
+      const relativeX = x - stageRect.left;
+      const relativeY = y - stageRect.top;
+
+      for (let i = 0; i < 14; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'spark';
+        spark.style.backgroundColor = color;
+        spark.style.left = `${relativeX}px`;
+        spark.style.top = `${relativeY}px`;
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 35 + Math.random() * 55;
+        spark.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+        spark.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+
+        stage.appendChild(spark);
+        setTimeout(() => spark.remove(), 500);
+      }
+    }
+
+    function switchLevel(lvl) {
+      currentLevel = lvl;
+      document.getElementById('tab-lvl1').classList.toggle('active', lvl === 1);
+      document.getElementById('tab-lvl2').classList.toggle('active', lvl === 2);
+      resetGame();
+    }
+
+    function resetGame() {
+      document.getElementById('game-modal').style.display = 'none';
+      lives = 3;
+      skips = 3;
+      score = 0;
+      currentIndex = 0;
+      questionPool = [...levelsData[currentLevel]].sort(() => 0.5 - Math.random());
+      updateInterface();
+      loadQuestion();
+    }
+
+    function updateInterface() {
+      document.getElementById('lives-txt').innerText = '❤️ '.repeat(lives);
+      document.getElementById('score-txt').innerText = `⭐ ${score}`;
+      document.getElementById('skip-btn').innerText = `تخطي (${skips})`;
+      document.getElementById('skip-btn').style.opacity = skips > 0 ? '1' : '0.5';
+    }
+
+    function loadQuestion() {
+      if (currentIndex >= questionPool.length) {
+        showEndModal(true);
+        return;
+      }
+
+      const current = questionPool[currentIndex];
+      const imgElem = document.getElementById('item-image');
+      imgElem.src = current.img;
+
+      // بديل تلقائي في حال حدوث أي حظر بالمتصفح
+      imgElem.onerror = () => {
+        imgElem.src = `https://loremflickr.com/500/400/${encodeURIComponent(current.word)}`;
+      };
+
+      const wrongWords = levelsData[currentLevel]
+        .filter(item => item.word !== current.word)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 2)
+        .map(item => item.word);
+
+      const options = [current.word, ...wrongWords].sort(() => 0.5 - Math.random());
+      launchBalloons(options, current.word);
+    }
+
+    function launchBalloons(words, correctWord) {
+      const stage = document.getElementById('balloon-stage');
+      stage.innerHTML = '';
+
+      const lanes = [8, 38, 68];
+      lanes.sort(() => 0.5 - Math.random());
+
+      words.forEach((word, idx) => {
+        const balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        balloon.innerText = word;
+
+        const color = balloonColors[(idx + Math.floor(Math.random() * 3)) % balloonColors.length];
+        balloon.style.backgroundColor = color;
+        balloon.style.color = '#ffffff';
+        balloon.style.left = `${lanes[idx]}%`;
+        balloon.style.animationDelay = `${idx * 0.45}s`;
+
+        const onSelect = (e) => {
+          const rect = balloon.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+
+          if (word === correctWord) {
+            soundSuccess();
+            createBurst(centerX, centerY, color);
+            balloon.remove();
+            score += 10;
+            updateInterface();
+            setTimeout(() => {
+              currentIndex++;
+              loadQuestion();
+            }, 350);
+          } else {
+            soundFail();
+            triggerShake();
+            handleFailure();
+          }
+        };
+
+        balloon.addEventListener('click', onSelect);
+        balloon.addEventListener('touchstart', (e) => { e.preventDefault(); onSelect(e); }, { passive: false });
+
+        stage.appendChild(balloon);
+      });
+    }
+
+    function triggerShake() {
+      const card = document.getElementById('game-card');
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 400);
+    }
+
+    function handleFailure() {
+      lives--;
+      updateInterface();
+      if (lives <= 0) {
+        showEndModal(false);
+      } else {
+        loadQuestion();
+      }
+    }
+
+    function skipItem() {
+      if (skips > 0) {
+        skips--;
+        updateInterface();
+        currentIndex++;
+        loadQuestion();
+      }
+    }
+
+    function showEndModal(isWin) {
+      document.getElementById('balloon-stage').innerHTML = '';
+      const modal = document.getElementById('game-modal');
+      const title = document.getElementById('modal-title');
+      const scoreTxt = document.getElementById('modal-score');
+      const actions = document.getElementById('modal-actions');
+
+      scoreTxt.innerText = `مجموع نقاطك: ${score} ⭐`;
+      actions.innerHTML = '';
+
+      if (isWin) {
+        // نداء الطفل باسمه مباشرة
+        title.innerText = `🎉 أحسنت يا ${playerName}!`;
+
+        if (currentLevel === 1) {
+          const nextBtn = document.createElement('button');
+          nextBtn.className = 'action-btn btn-next';
+          nextBtn.innerText = 'الانتقال إلى المستوى 2 (جمادات) ⬅️';
+          nextBtn.onclick = () => switchLevel(2);
+          actions.appendChild(nextBtn);
+        }
+
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'action-btn btn-retry';
+        retryBtn.innerText = 'إعادة هذا المستوى 🔄';
+        retryBtn.onclick = resetGame;
+        actions.appendChild(retryBtn);
+
+      } else {
+        title.innerText = `حاول مرة أخرى يا ${playerName} 💪`;
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'action-btn btn-retry';
+        retryBtn.innerText = 'إعادة المحاولة 🔄';
+        retryBtn.onclick = resetGame;
+        actions.appendChild(retryBtn);
+      }
+
+      modal.style.display = 'flex';
+    }
+  </script>
+</body>
+</html>
