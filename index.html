@@ -1,730 +1,725 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>لعبة الكلمات والبلونات للأطفال</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>لعبة التحدي والبالونات للأطفال</title>
   <style>
     :root {
-      --primary: #27ae60;
-      --accent: #e67e22;
-      --bg: #f0f4f8;
+      --bg-gradient: linear-gradient(180deg, #d8eeff 0%, #edf7ff 100%);
+      --card-bg: #ffffff;
+      --card-border: #bce0fd;
+      --text-color: #222222;
+      --divider-color: #bee3f8;
+      --string-color: #a0aec0;
+    }
+
+    body.dark-mode {
+      --bg-gradient: linear-gradient(180deg, #121824 0%, #1a202c 100%);
+      --card-bg: #1e2638;
+      --card-border: #2d3748;
+      --text-color: #edf2f7;
+      --divider-color: #4a5568;
+      --string-color: #718096;
     }
 
     * {
       box-sizing: border-box;
-      user-select: none;
-      -webkit-user-select: none;
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background: var(--bg);
+      background: var(--bg-gradient);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 10px;
-    }
-
-    /* الإطار الرئيسي للعبة */
-    .game-card {
-      width: 100%;
-      max-width: 440px;
-      height: 94vh;
-      max-height: 720px;
-      background: #ffffff;
-      border-radius: 28px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-      border: 3px solid #e2e8f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
+      color: var(--text-color);
+      transition: background 0.3s;
       overflow: hidden;
     }
 
-    /* ================= شاشة إدخال الاسم ================= */
-    .start-screen {
-      position: absolute;
-      top: 0;
-      left: 0;
+    .game-wrapper {
       width: 100%;
-      height: 100%;
-      background: #ffffff;
-      z-index: 100;
+      max-width: 440px;
+      height: 94vh;
+      max-height: 860px;
+      background: var(--card-bg);
+      border: 3px solid var(--card-border);
+      border-radius: 36px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      background: var(--card-bg);
+      z-index: 60;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 15px;
-      overflow-y: auto;
-    }
-
-    .start-title {
-      font-size: 22px;
-      color: #1e293b;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-    .start-subtitle {
-      font-size: 14px;
-      color: #64748b;
-      margin-bottom: 12px;
-    }
-
-    /* حقل عرض الاسم المختار */
-    .name-display-box {
-      width: 90%;
-      height: 48px;
-      border: 2px dashed #27ae60;
-      border-radius: 14px;
-      background: #f0fdf4;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 22px;
-      font-weight: bold;
-      color: #166534;
-      margin-bottom: 12px;
-      letter-spacing: 2px;
+      padding: 24px;
+      text-align: center;
     }
 
-    /* أزرار التحكم بالاسم */
-    .name-controls {
+    .screen.hidden {
+      display: none !important;
+    }
+
+    .screen h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #27ae60;
+    }
+
+    .input-field {
+      width: 85%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 2px solid #3498db;
+      font-size: 17px;
+      margin: 10px 0;
+      outline: none;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.95);
+      color: #222;
+    }
+
+    .input-field:focus {
+      border-color: #27ae60;
+    }
+
+    .setting-group {
+      margin: 8px 0;
       display: flex;
       gap: 10px;
-      width: 90%;
-      margin-bottom: 12px;
+      align-items: center;
+      font-size: 15px;
     }
 
-    .btn-delete {
-      flex: 1;
-      padding: 8px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-start-game {
-      flex: 2;
-      padding: 8px;
+    .btn {
       background: #27ae60;
       color: white;
       border: none;
-      border-radius: 10px;
-      font-weight: bold;
+      padding: 12px 26px;
+      border-radius: 20px;
       font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.25);
+      margin: 6px 4px;
+      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+      transition: transform 0.1s;
     }
 
-    /* شبكة مربعات الحروف */
-    .letters-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-secondary {
+      background: #3498db;
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+
+    .top-controls {
+      display: flex;
       gap: 6px;
-      width: 95%;
+      padding: 14px 10px 4px;
+      z-index: 10;
     }
 
-    .letter-btn {
-      aspect-ratio: 1;
-      background: #f8fafc;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #1e293b;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      transition: all 0.1s;
-    }
-
-    .letter-btn:active {
-      transform: scale(0.92);
-      background: #e2e8f0;
-    }
-
-    /* ================= واجهة اللعب ================= */
-    .level-tabs {
-      display: flex;
-      width: 90%;
-      gap: 10px;
-      margin-top: 12px;
-      z-index: 20;
-    }
-
-    .level-tab {
+    .level-btn {
       flex: 1;
-      padding: 8px 0;
-      border: 2px solid #27ae60;
-      border-radius: 16px;
-      background: #ffffff;
-      color: #27ae60;
-      font-size: 14px;
+      padding: 8px 4px;
+      font-size: 12px;
       font-weight: bold;
+      border-radius: 16px;
+      border: 2px solid #27ae60;
+      background: transparent;
+      color: #27ae60;
       cursor: pointer;
       text-align: center;
     }
 
-    .level-tab.active {
+    .level-btn.active {
       background: #27ae60;
-      color: #ffffff;
+      color: white;
     }
 
-    .status-row {
+    .stats-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 90%;
-      margin: 10px 0 8px 0;
-      z-index: 20;
-    }
-
-    .badge {
-      background: #f1f5f9;
-      padding: 5px 12px;
-      border-radius: 12px;
+      padding: 6px 14px;
       font-weight: bold;
       font-size: 14px;
-      color: #334155;
-    }
-
-    .skip-btn {
-      background: #f59e0b;
-      color: white;
-      border: none;
-      padding: 5px 12px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .skip-btn:active {
-      transform: scale(0.96);
-    }
-
-    /* صندوق عرض الصورة الحقيقية */
-    .image-box {
-      width: 210px;
-      height: 155px;
-      background: #f8fafc;
-      border: 3px solid #cbd5e1;
-      border-radius: 18px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-      z-index: 20;
-    }
-
-    .image-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* منطقة طيران البلونات */
-    .balloon-stage {
-      flex: 1;
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
-      border-top: 2px dashed #bae6fd;
       z-index: 10;
     }
 
-    /* تصميم البلونات والكتابة البيضاء الناصعة */
-    .balloon {
+    .stat-pill {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 6px 12px;
+      border-radius: 14px;
+    }
+
+    body.dark-mode .stat-pill {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-skip {
+      background: #f39c12;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .hearts {
+      color: #e74c3c;
+      letter-spacing: 2px;
+      font-size: 16px;
+    }
+
+    .image-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 14px 10px;
+      z-index: 10;
+      background: var(--card-bg);
+      min-height: 180px;
+    }
+
+    .question-img {
+      width: 230px;
+      height: 160px;
+      object-fit: contain;
+      border-radius: 20px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+      border: 3px solid rgba(255, 255, 255, 0.85);
+      background: #ffffff;
+      padding: 4px;
+    }
+
+    .dashed-divider {
+      border-bottom: 2px dashed var(--divider-color);
+      width: 100%;
+      z-index: 10;
+    }
+
+    .balloons-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .balloon-wrapper {
       position: absolute;
-      bottom: -110px;
-      width: 90px;
-      height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      will-change: transform;
+      touch-action: manipulation;
+    }
+
+    .balloon {
+      width: 95px;
+      height: 115px;
       border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #ffffff !important;
-      font-size: 21px;
+      color: white;
+      font-size: 18px;
       font-weight: bold;
-      cursor: pointer;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-      box-shadow: inset -6px -6px 10px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.15);
-      animation: flyUpward 5s infinite linear;
-      touch-action: manipulation;
-    }
-
-    .balloon::before {
-      content: "";
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-bottom: 7px solid inherit;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      box-shadow: inset -6px -6px 12px rgba(0,0,0,0.25), 0 8px 16px rgba(0,0,0,0.2);
+      position: relative;
+      text-align: center;
+      padding: 6px;
+      transition: transform 0.15s ease;
     }
 
     .balloon::after {
-      content: "";
+      content: '';
       position: absolute;
-      bottom: -20px;
+      bottom: -4px;
       left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid inherit;
+    }
+
+    .balloon-string {
       width: 2px;
-      height: 15px;
-      background: rgba(0, 0, 0, 0.25);
+      height: 30px;
+      background: var(--string-color);
     }
 
-    @keyframes flyUpward {
-      0% {
-        transform: translateY(0) rotate(0deg);
-      }
-      50% {
-        transform: translateY(-210px) rotate(4deg);
-      }
-      100% {
-        transform: translateY(-440px) rotate(-4deg);
-      }
-    }
-
-    /* اهتزاز المستطيل عند الخطأ */
-    .shake {
-      animation: shakeCard 0.4s ease-in-out;
-      border-color: #ef4444 !important;
-    }
-
-    @keyframes shakeCard {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-8px); }
-      40%, 80% { transform: translateX(8px); }
-    }
-
-    /* فرقعة الألوان */
-    .spark {
-      position: absolute;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: popSpark 0.5s ease-out forwards;
-      z-index: 50;
-    }
-
-    @keyframes popSpark {
-      0% { transform: translate(0, 0) scale(1.2); opacity: 1; }
-      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
-    }
-
-    /* شاشة النهاية */
-    .game-modal {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.96);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 110;
-      text-align: center;
-      padding: 25px;
-    }
-
-    .game-modal h2 {
-      color: #1e293b;
-      margin-bottom: 8px;
-      font-size: 22px;
-    }
-
-    .score-banner {
-      font-size: 19px;
-      color: #e67e22;
-      font-weight: bold;
-      margin: 12px 0 20px 0;
-      background: #fef3c7;
-      padding: 10px 20px;
-      border-radius: 16px;
-      border: 2px dashed #f59e0b;
-    }
-
-    .modal-actions {
+    .share-container {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 85%;
+      gap: 12px;
+      margin: 12px 0;
     }
 
-    .action-btn {
-      padding: 11px 16px;
-      border: none;
-      border-radius: 16px;
-      font-size: 15px;
+    .share-btn {
+      padding: 9px 18px;
+      border-radius: 14px;
+      color: white;
+      font-size: 14px;
       font-weight: bold;
+      border: none;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .btn-next { background: #2563eb; color: white; }
-    .btn-retry { background: #27ae60; color: white; }
+    .share-wa { background: #25D366; }
+    .share-fb { background: #1877F2; }
+
+    .advice-card {
+      background: rgba(39, 174, 96, 0.12);
+      border-right: 4px solid #27ae60;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      margin: 14px 0;
+      line-height: 1.6;
+      max-width: 90%;
+    }
   </style>
 </head>
 <body>
 
-  <div class="game-card" id="game-card">
+<div class="game-wrapper">
 
-    <!-- شاشة اختيار وكتابة الاسم -->
-    <div class="start-screen" id="start-screen">
-      <div class="start-title">مرحباً بك يا بطل! 🌟</div>
-      <div class="start-subtitle">اختر حروف اسمك من المربعات أدناه:</div>
-      
-      <div class="name-display-box" id="player-name-display">اضغط على الحروف...</div>
-
-      <div class="name-controls">
-        <button class="btn-delete" onclick="deleteLastLetter()">مسح ⌫</button>
-        <button class="btn-start-game" onclick="confirmNameAndStart()">ابدأ اللعب 🚀</button>
-      </div>
-
-      <!-- شبكة الحروف العربية -->
-      <div class="letters-grid" id="letters-grid"></div>
+  <!-- شاشة البداية -->
+  <div id="start-screen" class="screen">
+    <h2>🎈 مرحباً يا بطل! 🎈</h2>
+    <p style="font-size: 15px; margin-bottom: 10px;">سجل اسمك واستعد لتحدي البالونات</p>
+    
+    <input type="text" id="player-name-input" class="input-field" placeholder="اكتب اسمك هنا..." value="البطل" onfocus="this.value=''">
+    
+    <div class="setting-group">
+      <span>سرعة الصعود:</span>
+      <select id="speed-select" class="input-field" style="width: auto; padding: 6px 10px; margin: 0;">
+        <option value="slow">بطيئة 🐢</option>
+        <option value="medium" selected>متوسطة 🚶</option>
+        <option value="fast">سريعة 🚀</option>
+      </select>
     </div>
 
-    <!-- أزرار المستوى -->
-    <div class="level-tabs">
-      <button class="level-tab active" id="tab-lvl1" onclick="switchLevel(1)">المستوى 1 (حيوانات)</button>
-      <button class="level-tab" id="tab-lvl2" onclick="switchLevel(2)">المستوى 2 (جمادات)</button>
+    <div class="setting-group">
+      <span>المظهر:</span>
+      <select id="theme-select" class="input-field" style="width: auto; padding: 6px 10px; margin: 0;">
+        <option value="dark" selected>داكن (ليلي) 🌙</option>
+        <option value="light">أبيض (نهاري) ☀️</option>
+      </select>
     </div>
 
-    <!-- شريط معلومات اللعب -->
-    <div class="status-row">
-      <div class="badge" id="lives-txt">❤️ 3</div>
-      <div class="badge" id="player-badge">👤 بطل</div>
-      <div class="badge" id="score-txt">⭐ 0</div>
-      <button class="skip-btn" id="skip-btn" onclick="skipItem()">تخطي (3)</button>
-    </div>
-
-    <!-- صورة الاختبار الحقيقية -->
-    <div class="image-box">
-      <img id="item-image" src="" alt="صورة العنصر" referrerpolicy="no-referrer" />
-    </div>
-
-    <!-- مساحة البلونات -->
-    <div class="balloon-stage" id="balloon-stage"></div>
-
-    <!-- نافذة النهاية المخصصة للطفل باسمه -->
-    <div class="game-modal" id="game-modal">
-      <h2 id="modal-title">أحسنت!</h2>
-      <div class="score-banner" id="modal-score">مجموع نقاطك: 0</div>
-      <div class="modal-actions" id="modal-actions"></div>
-    </div>
-
+    <button class="btn" style="margin-top: 14px;" onclick="showPreGameAdvice()">ابدأ اللعب الآن! 🚀</button>
   </div>
 
-  <script>
-    // الحروف الأبجدية لشاشة البداية
-    const arabicLetters = [
-      'أ', 'ب', 'ت', 'ث', 'ج', 'ح',
-      'خ', 'د', 'ذ', 'ر', 'ز', 'س',
-      'ش', 'ص', 'ض', 'ط', 'ظ', 'ع',
-      'غ', 'ف', 'ق', 'ك', 'ل', 'م',
-      'ن', 'هـ', 'و', 'ي', 'ة', ' '
-    ];
+  <!-- شاشة النصيحة التربوية -->
+  <div id="pregame-screen" class="screen hidden">
+    <h2 style="color: #f39c12;">💡 قبل ما تلعب متنساش...</h2>
+    <div class="advice-card" id="pregame-advice-text"></div>
+    <button class="btn" style="margin-top: 16px; font-size: 18px;" onclick="startGameplay()">انطلق للمغامرة! 🎮</button>
+  </div>
 
-    let playerName = '';
+  <!-- شاشة النهاية -->
+  <div id="end-screen" class="screen hidden">
+    <h2 id="end-title">أحسنت صنعاً! 🎉</h2>
+    <p id="end-message" style="font-size: 16px; margin: 8px 0; font-weight: bold;"></p>
+    <div style="font-size: 24px; font-weight: bold; color: #f39c12; margin-bottom: 8px;">
+      مجموع النقاط: <span id="final-score">0</span> ⭐️
+    </div>
 
-    // إنشاء أزرار الحروف
-    const lettersGrid = document.getElementById('letters-grid');
-    arabicLetters.forEach(char => {
-      const btn = document.createElement('button');
-      btn.className = 'letter-btn';
-      btn.innerText = char === ' ' ? 'مسافة' : char;
-      if (char === ' ') btn.style.fontSize = '12px';
-      btn.onclick = () => addLetter(char);
-      lettersGrid.appendChild(btn);
-    });
+    <div class="share-container">
+      <button class="share-btn share-wa" onclick="shareWhatsApp()">واتساب 🟢</button>
+      <button class="share-btn share-fb" onclick="shareFacebook()">فيسبوك 🔵</button>
+    </div>
 
-    function addLetter(char) {
-      if (playerName.length < 15) {
-        playerName += char;
-        updateNameDisplay();
-      }
-    }
+    <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px; width: 85%;">
+      <button id="next-lvl-btn" class="btn btn-secondary" onclick="goToNextLevel()">المستوى التالي 🌟</button>
+      <button class="btn" onclick="restartRound()">إعادة المحاولة 🔄</button>
+      <button class="btn" style="background: #7f8c8d;" onclick="resetEntireGame()">البدء من جديد 🏠</button>
+    </div>
+  </div>
 
-    function deleteLastLetter() {
-      playerName = playerName.slice(0, -1);
-      updateNameDisplay();
-    }
+  <!-- التحكم في المستويات الثلاثة -->
+  <div class="top-controls">
+    <button id="lvl-1-btn" class="level-btn active" onclick="changeLevel(1)">1: حيوانات</button>
+    <button id="lvl-2-btn" class="level-btn" onclick="changeLevel(2)">2: أشياء</button>
+    <button id="lvl-3-btn" class="level-btn" onclick="changeLevel(3)">3: حشرات</button>
+  </div>
 
-    function updateNameDisplay() {
-      const display = document.getElementById('player-name-display');
-      display.innerText = playerName || 'اضغط على الحروف...';
-    }
+  <!-- شريط الإحصائيات -->
+  <div class="stats-bar">
+    <div class="hearts" id="hearts-display">❤️❤️❤️</div>
+    <div class="stat-pill">👤 <span id="player-display">البطل</span></div>
+    <div class="stat-pill"><span id="score-display">0</span> ⭐️</div>
+    <button class="btn-skip" id="skip-btn" onclick="skipQuestion()">تخطي (<span id="skips-left">3</span>)</button>
+  </div>
 
-    function confirmNameAndStart() {
-      playerName = playerName.trim();
-      if (!playerName) playerName = 'البطل';
-      document.getElementById('player-badge').innerText = `👤 ${playerName}`;
-      document.getElementById('start-screen').style.display = 'none';
-      resetGame();
-    }
+  <!-- صورة السؤال مع التعامل مع الامتدادات -->
+  <div class="image-container">
+    <img id="current-image" class="question-img" src="" alt="صورة السؤال" onerror="fixImageExtension(this)">
+  </div>
 
-    // روابط صور حقيقية عالية الجودة وموثوقة ولا تنقطع
-    const levelsData = {
-      1: [
-        { word: 'أسد', img: 'https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'نمر', img: 'https://images.pexels.com/photos/145939/pexels-photo-145939.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'غزال', img: 'https://images.pexels.com/photos/34231/antler-antler-carrier-fallow-deer-hirsch.jpg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'قرد', img: 'https://images.pexels.com/photos/1207875/pexels-photo-1207875.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'دب', img: 'https://images.pexels.com/photos/35435/bear-fauna-polar-bear-danger.jpg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'حصان', img: 'https://images.pexels.com/photos/1996333/pexels-photo-1996333.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'فيل', img: 'https://images.pexels.com/photos/66898/elephant-cub-tsavo-kenya-66898.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'زرافة', img: 'https://images.pexels.com/photos/802112/pexels-photo-802112.jpeg?auto=compress&cs=tinysrgb&w=500' }
-      ],
-      2: [
-        { word: 'شنطة', img: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'كتاب', img: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'كرسي', img: 'https://images.pexels.com/photos/116910/pexels-photo-116910.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'لمبة', img: 'https://images.pexels.com/photos/577514/pexels-photo-577514.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'قلم', img: 'https://images.pexels.com/photos/733857/pexels-photo-733857.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'هاتف', img: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'شاشة', img: 'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=500' },
-        { word: 'ساعة', img: 'https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=500' }
-      ]
-    };
+  <div class="dashed-divider"></div>
 
-    const balloonColors = ['#e11d48', '#2563eb', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+  <!-- منطقة البالونات -->
+  <div class="balloons-area" id="balloons-container"></div>
 
-    let currentLevel = 1;
-    let currentIndex = 0;
-    let lives = 3;
-    let skips = 3;
-    let score = 0;
-    let questionPool = [];
+</div>
 
-    // مؤثرات صوتية
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playBeep(freq, type, duration) {
+<script>
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playTone(freq, type, duration) {
+    try {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = type;
-      osc.frequency.value = freq;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
       osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
+  }
+
+  function playCorrectSound() {
+    playTone(523.25, 'sine', 0.15);
+    setTimeout(() => playTone(659.25, 'sine', 0.2), 120);
+    setTimeout(() => playTone(783.99, 'sine', 0.3), 240);
+  }
+
+  function playWrongSound() {
+    playTone(220, 'sawtooth', 0.2);
+    setTimeout(() => playTone(180, 'sawtooth', 0.3), 150);
+  }
+
+  function playBonusSound() {
+    playTone(440, 'triangle', 0.1);
+    setTimeout(() => playTone(660, 'triangle', 0.1), 100);
+    setTimeout(() => playTone(880, 'triangle', 0.25), 200);
+  }
+
+  const religiousAdvices = [
+    "أن تبدأ بـ «بسم الله الرحمن الرحيم»، فكل عمل يبدأ بذكر الله تحل فيه البركة.",
+    "أن تحافظ على صلواتك الخمس في وقتها، فهي صلتك الجميلة بالله تعالى ونور يومك.",
+    "أن تطيع والديك وتبتسم في وجههما وتسمع كلامهما لتنال رضا الله وجنته.",
+    "أن تجعل لسانك رطباً دائماً بذكر الله، والحمد لله على كل نعمه العظيمة.",
+    "أن تكون صادقاً وأميناً دائماً، فالرسول ﷺ كان يُلقب بالصادق الأمين.",
+    "أن تخصص وقتاً يومياً لقراءة آيات من القرآن الكريم وحفظها لتنير قلبك.",
+    "أن تحب الخير لأصدقائك كما تحبه لنفسك وتساعد من يحتاج لمساعدتك."
+  ];
+
+  // 1. مجلد الحيوانات والطيور
+  const animalsNames = [
+    "أرنب", "أسد", "باندا", "بطة", "بقرة", "بومة", "ثعبان", "جمل", "حصان", 
+    "حمار وحشي", "حمامة", "دجاجة", "زرافة", "سلحفاة", "طاووس", "قطة", "كنغر", "نسر", "نعامة", "نمر"
+  ];
+
+  // 2. مجلد الأشياء
+  const objectsNames = [
+    "باب", "ثلاجة", "دراجة", "ساعة", "سجادة", "سرير", "سيارة", "شاشة", "شماعة", "شنطة", 
+    "طائرة", "غسالة", "قبعة", "قلم", "كتاب", "كرة", "كرسي", "كوب", "مرآة", "مسجد", "مظلة", "مفتاح", "ملعقة", "نظارة"
+  ];
+
+  // 3. مجلد الحشرات
+  const insectsNames = [
+    "دعسوقة", "ذبابة", "صرصور", "عنكبوت", "فراشة", "ناموس", "نحلة", "نملة"
+  ];
+
+  const animalsList = animalsNames.map(name => ({ name, img: `animals/${encodeURIComponent(name)}.JPG` }));
+  const objectsList = objectsNames.map(name => ({ name, img: `objects/${encodeURIComponent(name)}.JPG` }));
+  const insectsList = insectsNames.map(name => ({ name, img: `insects/${encodeURIComponent(name)}.JPG` }));
+
+  function fixImageExtension(img) {
+    if (img.src.endsWith('.JPG')) {
+      img.src = img.src.replace('.JPG', '.jpg');
+    } else if (img.src.endsWith('.jpg')) {
+      img.src = img.src.replace('.jpg', '.png');
+    }
+  }
+
+  const balloonColors = [
+    "#e8175d", "#1e88e5", "#8e24aa", "#00897b", 
+    "#f39c12", "#43a047", "#d81b60", "#3949ab", "#d35400"
+  ];
+
+  let playerName = "البطل";
+  let currentLevel = 1;
+  let score = 0;
+  let hearts = 3;
+  let skips = 3;
+  let consecutiveCorrect = 0;
+  let currentRoundQuestions = [];
+  let currentQuestionIndex = 0;
+  let animationDuration = 7000;
+  let activeAnimFrame = null;
+  let questionStartTime = 0;
+  let isAnsweringLocked = false;
+
+  function shuffle(arr) {
+    return arr.slice().sort(() => Math.random() - 0.5);
+  }
+
+  function showPreGameAdvice() {
+    const nameInput = document.getElementById('player-name-input').value.trim();
+    playerName = nameInput || "البطل";
+    document.getElementById('player-display').innerText = playerName;
+
+    const speed = document.getElementById('speed-select').value;
+    if(speed === 'slow') animationDuration = 9500;
+    else if(speed === 'fast') animationDuration = 4800;
+    else animationDuration = 7000;
+
+    const theme = document.getElementById('theme-select').value;
+    if(theme === 'dark') document.body.classList.add('dark-mode');
+    else document.body.classList.remove('dark-mode');
+
+    document.getElementById('pregame-advice-text').innerText = shuffle(religiousAdvices)[0];
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('pregame-screen').classList.remove('hidden');
+  }
+
+  function startGameplay() {
+    document.getElementById('pregame-screen').classList.add('hidden');
+    initRound();
+  }
+
+  function changeLevel(lvl) {
+    currentLevel = lvl;
+    document.getElementById('lvl-1-btn').classList.toggle('active', lvl === 1);
+    document.getElementById('lvl-2-btn').classList.toggle('active', lvl === 2);
+    document.getElementById('lvl-3-btn').classList.toggle('active', lvl === 3);
+    initRound();
+  }
+
+  function goToNextLevel() {
+    const nextLvl = currentLevel < 3 ? currentLevel + 1 : 1;
+    changeLevel(nextLvl);
+  }
+
+  function getCurrentPool() {
+    if (currentLevel === 1) return animalsList;
+    if (currentLevel === 2) return objectsList;
+    return insectsList;
+  }
+
+  function initRound() {
+    cancelAnimationFrame(activeAnimFrame);
+    score = 0;
+    hearts = 3;
+    skips = 3;
+    consecutiveCorrect = 0;
+    currentQuestionIndex = 0;
+
+    const pool = getCurrentPool();
+    currentRoundQuestions = shuffle(pool).slice(0, 8);
+
+    updateStats();
+    document.getElementById('end-screen').classList.add('hidden');
+    loadQuestion();
+  }
+
+  function restartRound() {
+    initRound();
+  }
+
+  function resetEntireGame() {
+    cancelAnimationFrame(activeAnimFrame);
+    document.getElementById('end-screen').classList.add('hidden');
+    document.getElementById('start-screen').classList.remove('hidden');
+  }
+
+  function updateStats() {
+    document.getElementById('score-display').innerText = score;
+    document.getElementById('hearts-display').innerText = "❤️".repeat(Math.max(0, hearts));
+    document.getElementById('skips-left').innerText = skips;
+    document.getElementById('skip-btn').style.opacity = skips > 0 ? "1" : "0.5";
+  }
+
+  function loadQuestion() {
+    cancelAnimationFrame(activeAnimFrame);
+    isAnsweringLocked = false;
+
+    if(currentQuestionIndex >= currentRoundQuestions.length || hearts <= 0) {
+      endGame();
+      return;
     }
 
-    function soundSuccess() {
-      playBeep(523.25, 'sine', 0.1);
-      setTimeout(() => playBeep(659.25, 'sine', 0.1), 90);
-      setTimeout(() => playBeep(783.99, 'sine', 0.18), 180);
-    }
+    const currentItem = currentRoundQuestions[currentQuestionIndex];
+    const imgEl = document.getElementById('current-image');
+    imgEl.src = currentItem.img;
 
-    function soundFail() {
-      playBeep(160, 'sawtooth', 0.25);
-    }
+    const pool = getCurrentPool();
+    const wrongChoices = shuffle(pool.filter(i => i.name !== currentItem.name)).slice(0, 2);
+    const options = shuffle([currentItem, ...wrongChoices]);
 
-    function createBurst(x, y, color) {
-      const stage = document.getElementById('balloon-stage');
-      const stageRect = stage.getBoundingClientRect();
-      const relativeX = x - stageRect.left;
-      const relativeY = y - stageRect.top;
+    const shuffledColors = shuffle(balloonColors).slice(0, 3);
+    const container = document.getElementById('balloons-container');
+    container.innerHTML = "";
 
-      for (let i = 0; i < 14; i++) {
-        const spark = document.createElement('div');
-        spark.className = 'spark';
-        spark.style.backgroundColor = color;
-        spark.style.left = `${relativeX}px`;
-        spark.style.top = `${relativeY}px`;
+    const xOffsets = ["8%", "39%", "70%"];
+    const balloonElements = [];
 
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 35 + Math.random() * 55;
-        spark.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
-        spark.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+    options.forEach((opt, idx) => {
+      const bColor = shuffledColors[idx];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'balloon-wrapper';
+      wrapper.style.left = xOffsets[idx];
 
-        stage.appendChild(spark);
-        setTimeout(() => spark.remove(), 500);
-      }
-    }
+      wrapper.innerHTML = `
+        <div class="balloon" style="background: ${bColor}; border-bottom-color: ${bColor};">
+          ${opt.name}
+        </div>
+        <div class="balloon-string"></div>
+      `;
 
-    function switchLevel(lvl) {
-      currentLevel = lvl;
-      document.getElementById('tab-lvl1').classList.toggle('active', lvl === 1);
-      document.getElementById('tab-lvl2').classList.toggle('active', lvl === 2);
-      resetGame();
-    }
-
-    function resetGame() {
-      document.getElementById('game-modal').style.display = 'none';
-      lives = 3;
-      skips = 3;
-      score = 0;
-      currentIndex = 0;
-      questionPool = [...levelsData[currentLevel]].sort(() => 0.5 - Math.random());
-      updateInterface();
-      loadQuestion();
-    }
-
-    function updateInterface() {
-      document.getElementById('lives-txt').innerText = '❤️ '.repeat(lives);
-      document.getElementById('score-txt').innerText = `⭐ ${score}`;
-      document.getElementById('skip-btn').innerText = `تخطي (${skips})`;
-      document.getElementById('skip-btn').style.opacity = skips > 0 ? '1' : '0.5';
-    }
-
-    function loadQuestion() {
-      if (currentIndex >= questionPool.length) {
-        showEndModal(true);
-        return;
-      }
-
-      const current = questionPool[currentIndex];
-      const imgElem = document.getElementById('item-image');
-      imgElem.src = current.img;
-
-      // بديل تلقائي في حال حدوث أي حظر بالمتصفح
-      imgElem.onerror = () => {
-        imgElem.src = `https://loremflickr.com/500/400/${encodeURIComponent(current.word)}`;
+      wrapper.onpointerdown = (e) => {
+        e.preventDefault();
+        handleChoice(opt.name === currentItem.name, wrapper);
       };
 
-      const wrongWords = levelsData[currentLevel]
-        .filter(item => item.word !== current.word)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 2)
-        .map(item => item.word);
+      container.appendChild(wrapper);
+      balloonElements.push(wrapper);
+    });
 
-      const options = [current.word, ...wrongWords].sort(() => 0.5 - Math.random());
-      launchBalloons(options, current.word);
-    }
+    const containerH = container.clientHeight || 350;
+    const startY = containerH + 10;
+    const endY = -150;
 
-    function launchBalloons(words, correctWord) {
-      const stage = document.getElementById('balloon-stage');
-      stage.innerHTML = '';
+    questionStartTime = performance.now();
 
-      const lanes = [8, 38, 68];
-      lanes.sort(() => 0.5 - Math.random());
+    function step(timestamp) {
+      const elapsed = timestamp - questionStartTime;
+      const progress = Math.min(elapsed / animationDuration, 1);
+      const currentY = startY - progress * (startY - endY);
 
-      words.forEach((word, idx) => {
-        const balloon = document.createElement('div');
-        balloon.className = 'balloon';
-        balloon.innerText = word;
-
-        const color = balloonColors[(idx + Math.floor(Math.random() * 3)) % balloonColors.length];
-        balloon.style.backgroundColor = color;
-        balloon.style.color = '#ffffff';
-        balloon.style.left = `${lanes[idx]}%`;
-        balloon.style.animationDelay = `${idx * 0.45}s`;
-
-        const onSelect = (e) => {
-          const rect = balloon.getBoundingClientRect();
-          const centerX = rect.left + rect.width / 2;
-          const centerY = rect.top + rect.height / 2;
-
-          if (word === correctWord) {
-            soundSuccess();
-            createBurst(centerX, centerY, color);
-            balloon.remove();
-            score += 10;
-            updateInterface();
-            setTimeout(() => {
-              currentIndex++;
-              loadQuestion();
-            }, 350);
-          } else {
-            soundFail();
-            triggerShake();
-            handleFailure();
-          }
-        };
-
-        balloon.addEventListener('click', onSelect);
-        balloon.addEventListener('touchstart', (e) => { e.preventDefault(); onSelect(e); }, { passive: false });
-
-        stage.appendChild(balloon);
+      balloonElements.forEach(el => {
+        el.style.transform = `translateY(${currentY}px)`;
       });
-    }
 
-    function triggerShake() {
-      const card = document.getElementById('game-card');
-      card.classList.add('shake');
-      setTimeout(() => card.classList.remove('shake'), 400);
-    }
-
-    function handleFailure() {
-      lives--;
-      updateInterface();
-      if (lives <= 0) {
-        showEndModal(false);
+      if (progress < 1) {
+        activeAnimFrame = requestAnimationFrame(step);
       } else {
-        loadQuestion();
-      }
-    }
-
-    function skipItem() {
-      if (skips > 0) {
-        skips--;
-        updateInterface();
-        currentIndex++;
-        loadQuestion();
-      }
-    }
-
-    function showEndModal(isWin) {
-      document.getElementById('balloon-stage').innerHTML = '';
-      const modal = document.getElementById('game-modal');
-      const title = document.getElementById('modal-title');
-      const scoreTxt = document.getElementById('modal-score');
-      const actions = document.getElementById('modal-actions');
-
-      scoreTxt.innerText = `مجموع نقاطك: ${score} ⭐`;
-      actions.innerHTML = '';
-
-      if (isWin) {
-        // نداء الطفل باسمه مباشرة
-        title.innerText = `🎉 أحسنت يا ${playerName}!`;
-
-        if (currentLevel === 1) {
-          const nextBtn = document.createElement('button');
-          nextBtn.className = 'action-btn btn-next';
-          nextBtn.innerText = 'الانتقال إلى المستوى 2 (جمادات) ⬅️';
-          nextBtn.onclick = () => switchLevel(2);
-          actions.appendChild(nextBtn);
+        if (!isAnsweringLocked) {
+          isAnsweringLocked = true;
+          playWrongSound();
+          consecutiveCorrect = 0;
+          hearts--;
+          updateStats();
+          if (hearts <= 0) {
+            setTimeout(endGame, 400);
+          } else {
+            setTimeout(nextQuestion, 400);
+          }
         }
-
-        const retryBtn = document.createElement('button');
-        retryBtn.className = 'action-btn btn-retry';
-        retryBtn.innerText = 'إعادة هذا المستوى 🔄';
-        retryBtn.onclick = resetGame;
-        actions.appendChild(retryBtn);
-
-      } else {
-        title.innerText = `حاول مرة أخرى يا ${playerName} 💪`;
-        const retryBtn = document.createElement('button');
-        retryBtn.className = 'action-btn btn-retry';
-        retryBtn.innerText = 'إعادة المحاولة 🔄';
-        retryBtn.onclick = resetGame;
-        actions.appendChild(retryBtn);
       }
-
-      modal.style.display = 'flex';
     }
-  </script>
+
+    activeAnimFrame = requestAnimationFrame(step);
+  }
+
+  function handleChoice(isCorrect, element) {
+    if (isAnsweringLocked) return;
+    isAnsweringLocked = true;
+    cancelAnimationFrame(activeAnimFrame);
+
+    if (isCorrect) {
+      playCorrectSound();
+      score += 10;
+      consecutiveCorrect++;
+      if (consecutiveCorrect % 4 === 0) {
+        hearts = Math.min(hearts + 1, 5);
+        playBonusSound();
+      }
+      element.querySelector('.balloon').style.transform = "scale(1.2)";
+      setTimeout(nextQuestion, 350);
+    } else {
+      playWrongSound();
+      consecutiveCorrect = 0;
+      hearts--;
+      element.querySelector('.balloon').style.transform = "scale(0.8)";
+      updateStats();
+
+      if (hearts <= 0) {
+        setTimeout(endGame, 500);
+      } else {
+        setTimeout(nextQuestion, 500);
+      }
+    }
+    updateStats();
+  }
+
+  function skipQuestion() {
+    if (skips > 0 && !isAnsweringLocked) {
+      skips--;
+      updateStats();
+      nextQuestion();
+    }
+  }
+
+  function nextQuestion() {
+    currentQuestionIndex++;
+    loadQuestion();
+  }
+
+  function endGame() {
+    cancelAnimationFrame(activeAnimFrame);
+    const isWin = hearts > 0;
+    const endScreen = document.getElementById('end-screen');
+    const title = document.getElementById('end-title');
+    const msg = document.getElementById('end-message');
+    const nextBtn = document.getElementById('next-lvl-btn');
+
+    title.innerText = isWin ? "رائع وممتاز يا بطل! 🌟" : "حاول مجدداً يا بطل! 💪";
+    msg.innerText = isWin 
+      ? `أبدعت وتألقت يا ${playerName}! أنهيت الجولة بنجاح باهر!` 
+      : `لا بأس يا ${playerName}، البطل يتعلم من المحاولات وسوف تفوز في المرة القادمة!`;
+
+    document.getElementById('final-score').innerText = score;
+    nextBtn.style.display = isWin ? "inline-block" : "none";
+    endScreen.classList.remove('hidden');
+  }
+
+  function getShareText() {
+    return encodeURIComponent(`لقد حقق البطل (${playerName}) ${score} نقطة في لعبة الذكاء والبالونات الطائرة! 🎈🏆 هل تستطيع تحديه؟`);
+  }
+
+  function shareWhatsApp() {
+    window.open(`https://api.whatsapp.com/send?text=${getShareText()}`, '_blank');
+  }
+
+  function shareFacebook() {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=https://kids-quiz.com&quote=${getShareText()}`, '_blank');
+  }
+</script>
+
 </body>
 </html>
